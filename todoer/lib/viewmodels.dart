@@ -2,13 +2,18 @@
 import 'package:flutter/material.dart';
 
 class TodoModel {
+  static int instanceCount = 0;
+
+  int _id;
   bool _isDone;
   String _title;
 
   TodoModel({required String title, bool isDone=false})
     : _title = title,
-    _isDone = isDone;
+    _isDone = isDone,
+    _id = ++instanceCount;
 
+  int get id => _id;
   String get title => _title;
   bool get isDone => _isDone;
 
@@ -41,6 +46,11 @@ class TodoViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  void deleteTodo(int id) {
+    _models.removeWhere((element) => element.id == id);
+    notifyListeners();
+  }
+
   List<TodoModel> get models => _models;
 }
 
@@ -52,7 +62,7 @@ class ThemeModel {
 
   bool currentTheme;
   
-  ThemeModel() : currentTheme = false;
+  ThemeModel() : currentTheme = true;
 }
 
 class ThemeViewModel with ChangeNotifier {
