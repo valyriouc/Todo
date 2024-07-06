@@ -2,55 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todoer/viewmodels.dart';
 
-class ThemeConfigurations {
-  static Color barColor = const Color.fromARGB(255, 41, 153, 80);
-  static Color mainTheme = const Color.fromARGB(255, 39, 39, 39);
-  static Color textColor = const Color.fromARGB(255, 255, 255, 255);
-
-  bool currentTheme = true; 
-
-  static ThemeConfigurations? _instance;
-
-  static ThemeConfigurations getInstance() {
-    _instance ??= ThemeConfigurations._();
-    return _instance!;
-  }
-
-  ThemeConfigurations._() : currentTheme = true;
-
-  void changeTheme() {
-    if (currentTheme) {
-      currentTheme = false;
-      mainTheme = const Color.fromARGB(255, 255, 255, 255);
-      textColor = const Color.fromARGB(255, 0, 0, 0);
-    } else {
-      currentTheme = true;
-      mainTheme = const Color.fromARGB(255, 39, 39, 39);
-      textColor = const Color.fromARGB(255, 255, 255, 255);
-    }
-  }
-}
-
 void main() {
     runApp(
       MultiProvider(providers: [
         ChangeNotifierProvider(create: (_) => TodoViewModel(models: <TodoModel> [ TodoModel(title: "Hello world")])),
+        ChangeNotifierProvider(create: (_) => ThemeViewModel(model: ThemeModel()))
       ],
       child: const MainApp())
     );
 } 
 
-class MainApp extends StatefulWidget {
+class MainApp extends StatelessWidget {
   const MainApp({super.key});
   
-  @override
-  State<StatefulWidget> createState() => MainState();
-}
-
-class MainState extends State<MainApp> {
-
-  final ThemeConfigurations theme = ThemeConfigurations.getInstance();
-
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -65,18 +29,18 @@ class TodoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MainState? main = context.findAncestorStateOfType<MainState>();
     return Consumer<TodoViewModel>(
       builder: (context, viewModel, test) {
-        return Scaffold(
+        return Consumer<ThemeViewModel>(builder: (tcontext, themeModel, other) {
+          return Scaffold(
           appBar: AppBar(
             title: const Text("Your todos"),
-            backgroundColor: ThemeConfigurations.barColor,
+            backgroundColor: themeModel.barColor,
             actions: [
-              Switch(value: main?.theme.currentTheme ?? true, onChanged: (value) => main?.theme.changeTheme())
+              Switch(value: themeModel.currentTheme, onChanged: (value) => themeModel.changeTheme())
             ],
           ),
-          backgroundColor: ThemeConfigurations.mainTheme,
+          backgroundColor: themeModel.mainColor,
           body: ListView.builder(
               itemCount: viewModel.models.length,
               itemBuilder: (context, item) {
@@ -90,10 +54,10 @@ class TodoView extends StatelessWidget {
                     ),
                   Text(
                     viewModel.models[item].title, 
-                    style: TextStyle(color: ThemeConfigurations.textColor)
+                    style: TextStyle(color: themeModel.textColor)
                   ),
                   TextButton(
-                    style: ButtonStyle(textStyle: WidgetStatePropertyAll(TextStyle(color: ThemeConfigurations.textColor))),
+                    style: ButtonStyle(textStyle: WidgetStatePropertyAll(TextStyle(color: themeModel.textColor))),
                     child: const Text("Edit"), 
                     onPressed: () => Navigator.push(
                       context, 
@@ -103,6 +67,7 @@ class TodoView extends StatelessWidget {
               }
             )
         );
+        });
       });
   }
 }
@@ -112,12 +77,14 @@ class EditTodoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Consumer<ThemeViewModel>(
+      builder: (context, themeModel, child) {
+         return Scaffold(
         appBar: AppBar(
           title: const Text("Editing"),
-          backgroundColor: ThemeConfigurations.barColor,
+          backgroundColor: themeModel.barColor,
         ),
-        backgroundColor: ThemeConfigurations.mainTheme,
+        backgroundColor: themeModel.mainColor,
         body: Row(
           children: [   
             SizedBox(
@@ -126,15 +93,16 @@ class EditTodoView extends StatelessWidget {
               child: TextField(
                 autofocus: true,
                 style: TextStyle(
-                  color: ThemeConfigurations.textColor,
+                  color: themeModel.textColor,
                 ),
                 decoration: InputDecoration(
                   hintText: "Enter the title",
-                  hintStyle: TextStyle(color: ThemeConfigurations.textColor)
+                  hintStyle: TextStyle(color: themeModel.textColor)
                 ),
               )),
             TextButton(onPressed: () => { Navigator.push(context, MaterialPageRoute(builder: (context) => const TodoView()))}, child: const Text("Edit"))
           ]),
       );
+      });
   }
 } 

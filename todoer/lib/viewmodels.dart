@@ -42,5 +42,41 @@ class TodoViewModel with ChangeNotifier {
   }
 
   List<TodoModel> get models => _models;
-
 }
+
+class ThemeModel {
+
+  static const Color barColor = Color.fromARGB(255, 41, 153, 80);
+  static Color mainTheme = const Color.fromARGB(255, 39, 39, 39);
+  static Color textColor = const Color.fromARGB(255, 255, 255, 255);
+
+  bool currentTheme;
+  
+  ThemeModel() : currentTheme = false;
+}
+
+class ThemeViewModel with ChangeNotifier {
+
+  final ThemeModel model;
+
+  Color get barColor => ThemeModel.barColor;
+  Color get mainColor => ThemeModel.mainTheme;
+  Color get textColor => ThemeModel.textColor;
+
+  bool get currentTheme => model.currentTheme;
+
+  ThemeViewModel({required this.model}); 
+
+  void changeTheme() {
+    if (model.currentTheme) {
+      model.currentTheme = false;
+      ThemeModel.mainTheme = const Color.fromARGB(255, 255, 255, 255);
+      ThemeModel.textColor = const Color.fromARGB(255, 0, 0, 0);
+    } else {
+      model.currentTheme = true;
+      ThemeModel.mainTheme = const Color.fromARGB(255, 39, 39, 39);
+      ThemeModel.textColor = const Color.fromARGB(255, 255, 255, 255);
+    }
+    notifyListeners();
+  }
+} 
