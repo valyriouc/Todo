@@ -36,13 +36,15 @@ class TodoViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void editState(bool state, int index) {
-    _models[index].isDone = state;
+  void editState(bool state, int id) {
+    TodoModel e = _models.firstWhere((element) => element.id == id);
+    e.isDone = state;
     notifyListeners();
   }
 
-  void editTitle(String title, int index) {
-    _models[index].title = title;
+  void editTitle(String title, int id) {
+    TodoModel e = _models.firstWhere((element) => element.id == id);
+    e.title = title;
     notifyListeners();
   }
 
