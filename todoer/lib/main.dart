@@ -5,7 +5,11 @@ import 'package:todoer/viewmodels.dart';
 void main() {
     runApp(
       MultiProvider(providers: [
-        ChangeNotifierProvider(create: (_) => TodoViewModel(models: <TodoModel> [ TodoModel(title: "Hello world"), TodoModel(title: "Working on my goals")])),
+        ChangeNotifierProvider(create: (_) => TodoViewModel(models: <TodoModel> [ 
+          TodoModel(title: "Hello world"), 
+          TodoModel(title: "Working on my goals")]
+          )
+        ),
         ChangeNotifierProvider(create: (_) => ThemeViewModel(model: ThemeModel()))
       ],
       child: const MainApp())
@@ -37,7 +41,10 @@ class TodoView extends StatelessWidget {
             title: const Text("Your todos"),
             backgroundColor: themeModel.barColor,
             actions: [
-              Switch(value: themeModel.currentTheme, onChanged: (value) => themeModel.changeTheme()),
+              Switch(
+                value: themeModel.currentTheme, 
+                onChanged: (value) => themeModel.changeTheme()
+              ),
             ],
           ),
           bottomNavigationBar: const TodoBottomBar(),
@@ -58,14 +65,26 @@ class TodoView extends StatelessWidget {
                     style: TextStyle(color: themeModel.textColor)
                   ),
                   TextButton(
-                    style: ButtonStyle(textStyle: WidgetStatePropertyAll(TextStyle(color: themeModel.textColor))),
+                    style: ButtonStyle(
+                      textStyle: WidgetStatePropertyAll(
+                        TextStyle(
+                          color: themeModel.textColor
+                        )
+                      )
+                    ),
                     child: const Text("Edit"), 
                     onPressed: () => Navigator.push(
                       context, 
                       MaterialPageRoute(
                         builder: (context) => const EditTodoView()))),
                   TextButton(
-                    style: ButtonStyle(textStyle: WidgetStatePropertyAll(TextStyle(color: themeModel.textColor))),
+                    style: ButtonStyle(
+                      textStyle: WidgetStatePropertyAll(
+                        TextStyle(
+                          color: themeModel.textColor
+                        )
+                      )
+                    ),
                     child: const Text("Delete"),
                     onPressed: () => viewModel.deleteTodo(viewModel.models[item].id)
                   )
@@ -83,36 +102,63 @@ class TodoBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-        child: const Text("Create"),
-        onPressed: () => { Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTodoView()))},
-      );
+    return TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTodoView())), child: const Text("Create"));
   }
-
 }
 
-class CreateTodoView extends StatelessWidget {
+class CreateTodoView extends StatefulWidget {
   const CreateTodoView({super.key});
+  
+  @override
+  State<StatefulWidget> createState() => CreateTodoState();
+}
+
+class CreateTodoState extends State<CreateTodoView> {
+  final TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeViewModel>(
       builder: (context, themeModel, child) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text("Creating"),
-            backgroundColor: themeModel.barColor,
-          ),
-          backgroundColor: themeModel.mainColor,
-          body: Center(
-            child: Text(
-              "Coming soon...", 
-              style: TextStyle(
-                color: themeModel.textColor)))
+        return Consumer<TodoViewModel>(
+          builder: (context2, viewModel, test2) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: const Text("Create a todo"),
+                  backgroundColor: themeModel.barColor,
+                ),
+                backgroundColor: themeModel.mainColor,
+                body: Row(
+                  children: [
+                    Flexible(
+                      child: TextField(
+                        style: TextStyle(
+                          color: themeModel.textColor 
+                        ),
+                        controller: controller,
+                      )
+                    ),
+                    TextButton(
+                      onPressed: (() {
+                        viewModel.addTodo(TodoModel(title: controller.text));
+                        Navigator.push(
+                          context, 
+                          MaterialPageRoute(
+                            builder: (context) => const TodoView()
+                          )
+                        );
+                      }),
+                      child: const Text("Create"),
+                    )
+                  ],
+                )
+            );
+          },
         );
       }
     );
   }
+
 }
 
 class EditTodoView extends StatelessWidget {
@@ -142,9 +188,15 @@ class EditTodoView extends StatelessWidget {
                   hintStyle: TextStyle(color: themeModel.textColor)
                 ),
               )),
-            TextButton(onPressed: () => { Navigator.push(context, MaterialPageRoute(builder: (context) => const TodoView()))}, child: const Text("Edit"))
+            TextButton(onPressed: () => { 
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => const TodoView()))}, 
+                child: const Text("Edit"))
           ]),
-      );
-      });
+        );
+      }
+    );
   }
 } 
